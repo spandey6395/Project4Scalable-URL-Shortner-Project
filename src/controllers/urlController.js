@@ -36,7 +36,8 @@ const shortUrl = async function (req, res) {
         const data = req.body
 
         const cachedlongUrl = await GET_ASYNC(`${req.body.longUrl}`); 
-        if (cachedlongUrl) return res.status(200).send(cachedlongUrl);       /*Checking Data From Cache */
+        const parsedUrl=JSON.parse(cachedlongUrl)
+        if (parsedUrl) return res.status(200).send(cachedlongUrl);       /*Checking Data From Cache */
 
         if (!Object.keys(data).length)return res.status(400).send({ status: false, message: "Please provide URL details" }); 
         
@@ -48,7 +49,10 @@ const shortUrl = async function (req, res) {
         const checkLongUrl = await urlModel.findOne({ longUrl: data.longUrl }).select({ createdAt: 0, updatedAt: 0, __v: 0, _id: 0 }); /*Checking Data From urlModel */
 
         if (checkLongUrl) {
-        return res.status(200).send({ status: true, message: `Short URL already generated for this longURL.`, data: checkLongUrl });}
+            await SET_ASYNC(`${data.longUrl}`, JSON.stringify(checkLongUrl));
+         res.status(200).send({ status: true, message: `Short URL already generated for this longURL.`, data: checkLongUrl });
+        return
+    }
 
         const shortCode = shortid.generate()
         const baseUrl = "http://localhost:3000";
