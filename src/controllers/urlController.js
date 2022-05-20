@@ -33,15 +33,15 @@ const isValid = function (value) {
 const shortUrl = async function (req, res) {
     try {
 
+        if (!Object.keys(req.body).length)return res.status(400).send({ status: false, message: "Please provide URL details" }); 
+        
+        if (!isValid(req.body.longUrl))return res.status(400).send({ status: false, message: "Please provide Long URL." });
+        
         const cachedlongUrl = await GET_ASYNC(`${req.body.longUrl}`); 
 
         const parsedUrl=JSON.parse(cachedlongUrl)
 
         if (parsedUrl) return res.status(200).send(cachedlongUrl);       /*Checking Data From Cache */
-
-        if (!Object.keys(req.body).length)return res.status(400).send({ status: false, message: "Please provide URL details" }); 
-        
-        if (!isValid(req.body.longUrl))return res.status(400).send({ status: false, message: "Please provide Long URL." });
 
         if (!/(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/.test(req.body.longUrl)){ /*URL validation*/
             return res.status(400).send({ status: false, message: "Please Provide a Valid Long URL." })}
@@ -75,14 +75,14 @@ const shortUrl = async function (req, res) {
 const originalUrl = async function (req, res) {
 
     try {
+        
+        if (!shortid.isValid(`${req.params.urlCode}`)) return res.status(400).send({ status: false, message: "Please provide Correct urlCode." }); /*Checking Data From Cache */
 
         let cachedShortId = await GET_ASYNC(`${req.params.urlCode}`);
 
         let parsedShortId=JSON.parse(cachedShortId)
 
         if (parsedShortId) return res.status(302).redirect(parsedShortId.longUrl); /*Checking Data From Cache */
-        
-        if (!shortid.isValid(`${req.params.urlCode}`)) return res.status(400).send({ status: false, message: "Please provide Correct urlCode." }); /*Checking Data From Cache */
         
         const originalUrlData = await urlModel.findOne({ urlCode: req.params.urlCode });
        
