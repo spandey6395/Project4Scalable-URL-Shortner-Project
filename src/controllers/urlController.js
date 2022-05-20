@@ -37,14 +37,14 @@ const shortUrl = async function (req, res) {
         
         if (!isValid(req.body.longUrl))return res.status(400).send({ status: false, message: "Please provide Long URL." });
         
+        if (!/(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/.test(req.body.longUrl)){ /*URL validation*/
+        return res.status(400).send({ status: false, message: "Please Provide a Valid Long URL." })}
+
         const cachedlongUrl = await GET_ASYNC(`${req.body.longUrl}`); 
 
         const parsedUrl=JSON.parse(cachedlongUrl)
 
         if (parsedUrl) return res.status(200).send(cachedlongUrl);       /*Checking Data From Cache */
-
-        if (!/(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/.test(req.body.longUrl)){ /*URL validation*/
-            return res.status(400).send({ status: false, message: "Please Provide a Valid Long URL." })}
 
         const checkLongUrl = await urlModel.findOne({ longUrl: req.body.longUrl }).select({ createdAt: 0, updatedAt: 0, __v: 0, _id: 0 }); /*Checking Data From urlModel */
 
