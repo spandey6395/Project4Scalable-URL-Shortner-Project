@@ -58,7 +58,7 @@ const shortUrl = async function (req, res) {
         const baseUrl = "http://localhost:3000";
         const shortUrl = baseUrl + "/" + shortCode;  /*Concat base baseURL & URLcode*/
 
-        const ShortenUrl = await urlModel.create({ longUrl: req.body.longUrl , shortUrl: shortUrl, urlCode: shortCode, });
+        const ShortenUrl = await urlModel.create({ longUrl: req.body.longUrl , shortUrl: shortUrl, urlCode: shortCode, }).select({ createdAt: 0, updatedAt: 0, __v: 0 });
         
         await SET_ASYNC(`${req.body.longUrl}`, JSON.stringify(ShortenUrl));
 
